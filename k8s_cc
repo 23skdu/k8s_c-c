@@ -1,0 +1,27 @@
+#!/usr/bin/env perl 
+use strict;
+use warnings;
+use Getopt::Std;
+$ENV{"USE_GKE_GCLOUD_AUTH_PLUGIN"}='True';
+my $kube=`which kubectl` || die print "ERR:must have kubectl installed installed\n";
+chomp($kube);
+my @k8s = `$kube config view -ojsonpath='{.contexts[*].name}'`;
+my %opt=();
+getopts("a:n:e:i:",\%opt);
+our $action=$opt{'a'};
+my @actions=qw/ListClusters ListMemCacheD /;
+if (! defined $opt{'a'}){ print "ERR:Must specify action (-a)\nExample: $0 -a ListClusters\n"; usage(); };
+if (! grep(/^$action$/, @actions)) { print "ERR: Must specify a valid action\n"; usage(); };
+eval { &{ \&$action }();};
+
+sub usage { print "\e[33mActions:\u ";foreach my $entry(@actions) { print "\e[32m$entry\u "};print "\n"; exit 1; }
+
+sub ListClusters { foreach (@k8s) { print "$_\n"; } }
+
+sub openfwd {
+#my $ctx=`$kube config set-context $k8 --namespace $namespace` or die print "$!\n";
+#my $forward = open ( PORTFWD, "-|", "$kube", 'port-forward', "$pod", "$port:$port" ) or die print "$!\n";
+#sleep 1
+#system("kill -9 $forward");
+#close PORTFWD;
+}
